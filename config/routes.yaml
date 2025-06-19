@@ -1,0 +1,23 @@
+home:
+    path: /
+    controller: App\Controller\TaskController::index
+
+task1:
+    path: /task1
+    controller: App\Controller\TaskController::task1
+    methods: [GET, POST]
+
+task2:
+    path: /task2
+    controller: App\Controller\TaskController::task2
+    methods: [GET]
+
+task2_result:
+    path: /task2/result
+    controller: App\Controller\TaskController::task2Result
+    methods: [POST]
+
+task3:
+    path: /task3
+    controller: App\Controller\TaskController::task3
+    methods: [GET, POST]

@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  app:
+    image: php:8.2-fpm
+    container_name: php_container
+    build: ./docker/php
+    volumes:
+      - ./:/var/www/html:rw
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
+    networks:
+      - memos-network
+
+  webserver:
+    image: nginx:latest
+    container_name: nginx_container
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx-config.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/snippets/fastcgi-php.conf:/etc/nginx/snippets/fastcgi-php.conf
+    networks:
+      - memos-network
+
+  db:
+    image: mysql
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: memos
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - memos-network
+
+  #TODO if on production delete this one for security reasons
+  adminer:
+    image: adminer
+    container_name: adminer_container
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - memos-network
+
+networks:
+  memos-network:
+    driver: bridge

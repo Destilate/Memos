@@ -1,0 +1,55 @@
+{% if selectedCrewMember is not null %}
+    {% set patientX = selectedCrewMember.fullname %}
+    {% if selectedCrewMember.parent is null %}
+        {% set isCaptain = selectedCrewMember.fullname %}
+    {% endif %}
+{% else %}
+    {% set patientX = '' %}
+{% endif %}
+
+{% extends "base.html.twig" %}
+
+{% block title %}MEMOS - ÚKOL 3{% endblock %}
+
+{% block body %}
+    <h2>Úkol 3</h2>
+    <p>Zobrazit všechny podřízené nebo nakažené.</p>
+
+    {{ form_start(form) }}
+    {{ form_row(form.crew) }}
+    {{ form_row(form.resultType) }}
+    <button type="submit">Zobrazit</button>
+    {{ form_end(form) }}
+
+    {% if subordinates is defined and subordinates is not null %}
+        <h3>Podřízení</h3>
+        {% if subordinates is not empty %}
+            Celkový počet: {{ subordinates | length }}
+            <ul>
+                {% for name in subordinates %}
+                    <li>{{ name }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Žádní podřízení.</p>
+        {% endif %}
+    {% endif %}
+
+    {% if infectionPath is defined and infectionPath is not null %}
+        <h3>Všichni možní nakažení od pacienta X "{{ patientX }}" než nakazili kapitána</h3>
+        {% if infectionPath is not empty %}
+            <ul>
+                {% for member in infectionPath %}
+                    <li>{{ member }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            {% if isCaptain is not defined %}
+                <p>Pacient X nakazil přímo kapitána.</p>
+            {% else %}
+                <p>Pacient X je přímo kapitán.</p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html.twig" %}
+
+{% block title %}MEMOS - ÚKOL 1{% endblock %}
+
+{% block body %}
+    <h2>Úkol 1</h2>
+    <p>Zobrazení duplicitních hodnot z vygenerovaného pole:</p>
+
+    <form action="/task1" method="post">
+        <label for="itemCount">Počet položek pole typu integer:</label>
+        <input type="number" id="itemCount" name="itemCount" value="{{ itemCount }}" min="1" required>
+
+        <label for="min">Minimální náhodná hodnota položky:</label>
+        <input type="number" id="min" name="min" value="{{ min }}" required>
+
+        <label for="max">Maximální náhodná hodnota položky:</label>
+        <input type="number" id="max" name="max" value="{{ max }}" required>
+
+        <button type="submit">Vygenerovat a najít duplicity</button>
+    </form>
+    <hr>
+    {% if duplicates is defined %}
+        {% if duplicates is empty and duplicates is not null %}
+            <p><em>Nebyla nalezená žádná duplicita.</em></p>
+        {% elseif duplicates is null %}
+            <p><em>Vygenerujte pole.</em></p>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Hodnota</th>
+                    <th>Počet výskytů</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for value, count in duplicates %}
+                    <tr>
+                        <td>{{ value }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+{% endblock %}
