@@ -6,18 +6,13 @@
     <h2>Úkol 1</h2>
     <p>Zobrazení duplicitních hodnot z vygenerovaného pole:</p>
 
-    <form action="/task1" method="post">
-        <label for="itemCount">Počet položek pole typu integer:</label>
-        <input type="number" id="itemCount" name="itemCount" value="{{ itemCount }}" min="1" required>
+    {{ form_start(form) }}
+    {{ form_row(form.itemCount) }}
+    {{ form_row(form.min) }}
+    {{ form_row(form.max) }}
+    <button type="submit">Vygenerovat a najít duplicity</button>
+    {{ form_end(form) }}
 
-        <label for="min">Minimální náhodná hodnota položky:</label>
-        <input type="number" id="min" name="min" value="{{ min }}" required>
-
-        <label for="max">Maximální náhodná hodnota položky:</label>
-        <input type="number" id="max" name="max" value="{{ max }}" required>
-
-        <button type="submit">Vygenerovat a najít duplicity</button>
-    </form>
     <hr>
     {% if duplicates is defined %}
         {% if duplicates is empty and duplicates is not null %}

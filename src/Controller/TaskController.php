@@ -1,7 +1,11 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Form\CrewSelectType;
+use App\Form\Task1Type;
+use App\Form\Task2Type;
 use App\Service\Task1Service;
 use App\Service\Task2Service;
 use App\Service\Task3Service;
@@ -10,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class TaskController extends AbstractController
 {
@@ -27,47 +32,64 @@ class TaskController extends AbstractController
 
     public function task1(Request $request): Response
     {
-        $itemCount = (int) $request->request->get('itemCount', 1000000);
-        $min = (int) $request->request->get('min', 1);
-        $max = (int) $request->request->get('max', 1000000);
+        $defaultData = [
+            'itemCount' => 1000000,
+            'min' => 1,
+            'max' => 1000000,
+        ];
+
+        $form = $this->createForm(Task1Type::class);
+
+        if (!$request->isMethod('POST')) {
+            $form->setData($defaultData);
+        }
+
+        $form->handleRequest($request);
 
         $duplicates = null;
-        if ($request->isMethod('POST')) {
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
             $service = new Task1Service();
-            $randomArray = $service->createRandomArray($itemCount, $min, $max);
+            $randomArray = $service->createRandomArray($data['itemCount'], $data['min'], $data['max']);
             $duplicates = $service->checkForDuplicitiesInArray($randomArray);
         }
 
-        $html = $this->twig->render('task1.html.twig', [
+        return $this->render('task1.html.twig', [
+            'form' => $form->createView(),
             'duplicates' => $duplicates,
-            'itemCount' => $itemCount,
-            'min' => $min,
-            'max' => $max,
         ]);
-
-        return new Response($html);
     }
 
-    public function task2(): Response
+    public function task2(Request $request): Response
     {
-        $html = $this->twig->render('task2.html.twig');
-        return new Response($html);
-    }
+        $form = $this->createForm(Task2Type::class);
+        $form->handleRequest($request);
 
-    public function task2Result(Request $request): JsonResponse
-    {
-        try {
-            $planetName =  $request->request->get('planet');
-            $service = new Task2Service();
+        $resultJson = null;
 
-            return $service->findStarshipsWithPilotsFromPlanet($planetName);
-        } catch (\Throwable $e) {
-            error_log('Chyba v task2Result: ' . $e->getMessage());
-            return new JsonResponse([
-                'error' => true,
-                'message' => 'Nastala chyba: ' . $e->getMessage(),
-            ], 500);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $planetName = $data['planet'];
+
+            try {
+                $service = new Task2Service();
+                $resultJson = $service->findStarshipsWithPilotsFromPlanetPrettyJson($planetName);
+            } catch (\Throwable $e) {
+                $message = preg_replace('/\s+/', ' ', $e->getMessage());
+                $resultJson = json_encode([
+                    'error' => true,
+                    'exception' => get_class($e),
+                    'message' => 'Nastala chyba: ' . $message,
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
         }
+
+        return $this->render('task2.html.twig', [
+            'form' => $form->createView(),
+            'resultJson' => $resultJson,
+        ]);
     }
 
     public function task3(Request $request): Response

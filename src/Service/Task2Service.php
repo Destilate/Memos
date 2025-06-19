@@ -42,7 +42,7 @@ class Task2Service
         return $planet['residents'] ?? [];
     }
 
-    public function findStarshipsWithPilotsFromPlanet(string $planetName): JsonResponse
+    public function findStarshipsWithPilotsFromPlanetRaw(string $planetName): array
     {
         $residentsFromPlanet = $this->getResidentsUrlFromPlanet($planetName);
 
@@ -67,9 +67,21 @@ class Task2Service
 
         } while ($url);
 
-        return new JsonResponse([
+        return [
             'planet' => $planetName,
             'starships_with_pilot_from_planet' => $result,
-        ]);
+        ];
+    }
+
+    public function findStarshipsWithPilotsFromPlanet(string $planetName): JsonResponse
+    {
+        $data = $this->findStarshipsWithPilotsFromPlanetRaw($planetName);
+        return new JsonResponse($data);
+    }
+
+    public function findStarshipsWithPilotsFromPlanetPrettyJson(string $planetName): string
+    {
+        $data = $this->findStarshipsWithPilotsFromPlanetRaw($planetName);
+        return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }

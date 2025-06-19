@@ -6,9 +6,11 @@
     <h2>Úkol 2</h2>
     <p>Vyhledat hvězdné lodě, které řídí pilot z planety</p>
 
-    <form action="/task2/result" method="POST" target="_blank">
-        <label for="planet">Planeta:</label>
-        <input type="text" id="planet" name="planet" value="Kashyyyk" placeholder="Zadejte jméno planety" required>
-        <button type="submit">Zobrazit JSON v novém okně</button>
-    </form>
+    {{ form_start(form) }}
+    {{ form_row(form.planet) }}
+    <button type="submit">Zobrazit JSON</button>
+    {{ form_end(form) }}
+    {% if resultJson is not null %}
+        <pre>{{ resultJson|raw }}</pre>
+    {% endif %}
 {% endblock %}
